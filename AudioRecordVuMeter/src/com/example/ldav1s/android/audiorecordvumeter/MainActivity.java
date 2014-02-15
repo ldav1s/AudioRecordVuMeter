@@ -103,35 +103,36 @@ public class MainActivity extends Activity {
 
         while (status && mRecorder.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
            if ((shortsRead = mRecorder.read(buffer, 0, buffer.length)) > 0) {
-              int pmax = 0;
+              int pmax = 1;
               int nmin = 0;
               final double LOG_2 = log(2.0);
+              int i;
 
               // find the sample with the largest excursion in this slice
-              for (short s : buffer) {
-                 if (s > 0) {
-                    pmax = ((int)s > pmax) ? (int)s : pmax;
+              for (i = 0; i < shortsRead; ++i) {
+                 if (buffer[i] > 0) {
+                    pmax = max(pmax, (int)buffer[i]);
                  } else {
-                    nmin = ((int)s < nmin) ? (int)s : nmin;
+                    nmin = min(nmin, (int)buffer[i]);
                  }
               }
-              nmin = abs(nmin < -Short.MAX_VALUE ? -Short.MAX_VALUE : nmin);
-              pmax = (pmax > nmin) ? pmax : nmin;
+              nmin = -max(nmin, -((int)Short.MAX_VALUE)); // make sure nmin is in [0..Short.MAX_VALUE]
+              pmax = max(pmax, nmin);
 
               // convert the excursion to binary log scale.
               // the Vu Meter images go from vu00 to vu32.
               // BTW, these fine images were from Mixx <www.mixxx.org> ca. May 2006
               // when they were still at <mixx.sourceforge.net>.  I saved them for
               // an unreleased piece of software, and found them to be useful for this.
-              double lb_pmax = log((double)pmax)/LOG_2;
-              double c_lb_pmax = ceil(lb_pmax);
-              publishProgress(((int)c_lb_pmax+1)*2 - (((c_lb_pmax - lb_pmax) > 0.5) ? 1 : 0));
+              double lb_pmax = log((double)pmax)/LOG_2; // lb_pmax [0..15)
+              double c_lb_pmax = ceil(lb_pmax); // c_lb_pmax [0..15]
+              publishProgress(Integer.valueOf(((int)c_lb_pmax+1)*2 - (((c_lb_pmax - lb_pmax) > 0.5) ? 1 : 0)));
            } else if (shortsRead < 0) {
               // error
-              publishProgress(0);
+              publishProgress(Integer.valueOf(0));
               status = false;
            } else {
-              publishProgress(0);
+              publishProgress(Integer.valueOf(0));
               status = false;
            }
         }

@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
    private ImageView mVuMeter = null;
    private int mVuMeterResIds[] = null;
    private static final int VU_METER_RES_CNT = 33;
+   private static final int RECORDING_SAMPLE_RATE = 44100;
 
    private void onRecord(boolean start) {
       if (start) {
@@ -55,11 +56,11 @@ public class MainActivity extends Activity {
    }
 
    private void startRecording() {
-      mRecorderBufSize = AudioRecord.getMinBufferSize(44100,
+      mRecorderBufSize = AudioRecord.getMinBufferSize(RECORDING_SAMPLE_RATE,
                                                       AudioFormat.CHANNEL_IN_MONO,
                                                       AudioFormat.ENCODING_PCM_16BIT);
       mRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                                  44100,
+                                  RECORDING_SAMPLE_RATE,
                                   AudioFormat.CHANNEL_IN_MONO,
                                   AudioFormat.ENCODING_PCM_16BIT,
                                   mRecorderBufSize);

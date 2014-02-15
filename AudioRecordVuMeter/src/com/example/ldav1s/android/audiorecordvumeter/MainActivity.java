@@ -21,7 +21,6 @@ package com.example.ldav1s.android.audiorecordvumeter;
  */
 
 import android.app.Activity;
-import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -30,16 +29,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import static java.lang.Math.*;
 import java.util.Formatter;
 
 public class MainActivity extends Activity {
 
-   private RecordButton mRecordButton = null;
+   private ImageButton mRecordButton = null;
    private AudioRecord mRecorder = null;
    private int mRecorderBufSize;
    private ImageView mVuMeter = null;
@@ -71,28 +68,6 @@ public class MainActivity extends Activity {
 
    private void stopRecording() {
       mRecorder.stop();
-   }
-
-   private class RecordButton extends ImageButton {
-      boolean mStartRecording = true;
-      
-      OnClickListener clicker = new OnClickListener() {
-            public void onClick(View v) {
-               onRecord(mStartRecording);
-               if (mStartRecording) {
-                  setImageResource(R.drawable.stop);
-               } else {
-                  setImageResource(R.drawable.record);
-               }
-               mStartRecording = !mStartRecording;
-            }
-         };
-
-      public RecordButton(Context ctx) {
-         super(ctx);
-         setImageResource(R.drawable.record);
-         setOnClickListener(clicker);
-      }
    }
 
    private class AudioPoll extends AsyncTask<Integer, Integer, Void> {
@@ -148,6 +123,7 @@ public class MainActivity extends Activity {
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_main);
 
       mVuMeterResIds = new int[VU_METER_RES_CNT];
       int i;
@@ -157,25 +133,27 @@ public class MainActivity extends Activity {
          mVuMeterResIds[i] = getResources().getIdentifier(vuName.toString(), "drawable", getPackageName());
          vuName.close();
       }
-      
-      LinearLayout ll = new LinearLayout(this);
 
-      mVuMeter = new ImageView(this);
-      mVuMeter.setImageResource(R.drawable.vu00); // silent
+      mVuMeter = (ImageView) findViewById(R.id.vu_meter);
+      mRecordButton = (ImageButton) findViewById(R.id.record_button);
 
-      ll.addView(mVuMeter,
-                 new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    0.1f));
+      OnClickListener clicker = new OnClickListener() {
+            boolean mStartRecording = true;
+            final ImageButton b = mRecordButton;
+            public void onClick(View v) {
+               onRecord(mStartRecording);
+               if (mStartRecording) {
+                  b.setImageResource(R.drawable.stop);
+                  b.setContentDescription(getString(R.string.content_desc_stop));
+               } else {
+                  b.setImageResource(R.drawable.record);
+                  b.setContentDescription(getString(R.string.content_desc_record));
+               }
+               mStartRecording = !mStartRecording;
+            }
+         };
 
-      mRecordButton = new RecordButton(this);
-      ll.addView(mRecordButton,
-                 new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    0));
-      setContentView(ll);      
+      mRecordButton.setOnClickListener(clicker);
    }
 	
    @Override

@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
               // an unreleased piece of software, and found them to be useful for this.
               double lb_pmax = log((double)pmax)/LOG_2; // lb_pmax [0..15)
               double c_lb_pmax = ceil(lb_pmax); // c_lb_pmax [0..15]
-              publishProgress(Integer.valueOf(((int)c_lb_pmax+1)*2 - (((c_lb_pmax - lb_pmax) > 0.5) ? 1 : 0)));
+              publishProgress(Integer.valueOf(((int)c_lb_pmax+1)*2 - (int)round(c_lb_pmax - lb_pmax)));
            } else if (shortsRead < 0) {
               // error
               publishProgress(Integer.valueOf(0));
